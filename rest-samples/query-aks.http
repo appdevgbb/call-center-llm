@@ -1,0 +1,6 @@
+POST   https://func-api-fd3a4rnew474c.azurewebsites.net/api/Chat
+Content-Type: application/json
+
+{
+    "query": "What is Azure CNI Overlay? How does it differ from AKS with Kubenet?"
+}
