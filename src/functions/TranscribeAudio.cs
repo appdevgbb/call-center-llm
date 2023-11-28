@@ -33,19 +33,26 @@ namespace AudioTranscriptionFunction
                     {
                         audioInputStream.Write(buffer, bytesRead);
                     }
+                    
+                    audioInputStream.Close();
                 }
+
+                speechConfig.SpeechRecognitionLanguage = "en-CA";
+                speechConfig.SetProperty(PropertyId.Speech_SegmentationSilenceTimeoutMs, "5000");
+                speechConfig.SetProperty(PropertyId.SpeechServiceConnection_InitialSilenceTimeoutMs, "10000");
 
                 var audioConfig = AudioConfig.FromStreamInput(audioInputStream);
                 var speechRecognizer = new SpeechRecognizer(speechConfig, audioConfig);
 
             
                 var result = await speechRecognizer.RecognizeOnceAsync();
+
                 if (result.Reason == ResultReason.RecognizedSpeech)
                 {
                     logger.LogInformation($"Transcribed text: {result.Text}");
 
                     // Writing transcribed text to the output blob
-                    var outputBlobClient = new BlobClient(outputStorageConnectionString, outputContainerName, $"{Path.GetFileNameWithoutExtension(name)}.txt");
+                    var outputBlobClient = new BlobClient(outputStorageConnectionString, outputContainerName, $"{name}.txt");
                     await outputBlobClient.UploadAsync(new BinaryData(result.Text), overwrite: true);
                 }
                 else if (result.Reason == ResultReason.Canceled)
@@ -55,12 +62,17 @@ namespace AudioTranscriptionFunction
 
                     if (cancellation.Reason == CancellationReason.Error)
                     {
-                        logger.LogError($"CancellationToken error details: {cancellation.ErrorDetails}");
+                        logger.LogError($"CANCELED: ErrorCode={cancellation.ErrorCode}");
+                        logger.LogError($"CANCELED: ErrorDetails={cancellation.ErrorDetails}");
+                        logger.LogError($"CANCELED: Did you update the subscription info?");
                     }
                 }
                 else
                 {
+                    var cancellation = NoMatchDetails.FromResult(result);
                     logger.LogError($"Speech recognition failed. Reason: {result.Reason}");
+
+                    logger.LogError($"FAILED: Reason={cancellation.Reason}");
                 }
             }
         }
