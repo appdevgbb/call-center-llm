@@ -21,7 +21,6 @@ namespace CallCenterChatBot
 
         private readonly IDictionary<string, ISKFunction> _semanticPlugins;
         private readonly ISKFunction _identityExtractorPlugin;
-        private readonly string _memoryCollectionName = "customer-calls";
 
         public IdentityExtractor(ILoggerFactory loggerFactory, IKernel kernel)
         {
@@ -42,50 +41,11 @@ namespace CallCenterChatBot
             _logger.LogInformation("IdentityExtractor function triggered.");
             
             
+            
             var response = req.CreateResponse(HttpStatusCode.OK);
             response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
-            response.WriteString(summaryTextList[0]);
 
             return response;
-        }
-
-        private static void ValidateUri(string docUrl)
-        {
-            if (string.IsNullOrEmpty(docUrl))
-            {
-                throw new ArgumentException("docUrl cannot be null or empty");
-            }
-
-            if (!Uri.IsWellFormedUriString(docUrl, UriKind.Absolute))
-            {
-                throw new ArgumentException("docUrl is not a valid absolute uri");
-            }
-        }
-
-        private static async Task<(string mainDocTitle, string html, string innerTextOutput)> ProcessHtmlDocFromUrl(string docUrl)
-        {
-            // create a http client request and call docurl endpoint
-            var request = new HttpRequestMessage(HttpMethod.Get, docUrl);
-            var client = new HttpClient();
-            var httpDocResponse = await client.SendAsync(request);
-            var html = await httpDocResponse.Content.ReadAsStringAsync();
-
-            // // parse the html with htmlagilitypack
-            var htmlDocument = new HtmlDocument();
-            htmlDocument.LoadHtml(html);
-            
-            var mainDocTitle = htmlDocument.DocumentNode.SelectSingleNode("//title").InnerText;
-            var mainContent = htmlDocument.DocumentNode.SelectSingleNode("//main[@id='main']");
-
-            if (mainContent == null)
-            {
-                mainContent = htmlDocument.DocumentNode.SelectSingleNode("//body");
-            }
-
-            var mainContentHtml = mainContent.InnerHtml;
-            var mainContentText = mainContent.InnerText;
-
-            return(mainDocTitle, mainContentHtml, mainContentText);
         }
 
         private static List<string> ChunkText(string contentText, int maxLinetokens, int maxParagraphTokens)
