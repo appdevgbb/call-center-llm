@@ -33,28 +33,19 @@ namespace CallCenterChatBot
         }
 
         [Function("IdentityExtractor")]
-        public async Task<HttpResponseData> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "post")] 
-            HttpRequestData req,
-            FunctionContext executionContext)
+        public async Task<string> RunAsync(
+            [BlobTrigger("transcribbed-files/{name}", Connection = "TranscriptionStorage")] Stream inputBlob, string name, FunctionContext context
+        )
         {
             _logger.LogInformation("IdentityExtractor function triggered.");
             
-            
-            
-            var response = req.CreateResponse(HttpStatusCode.OK);
-            response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
-
-            return response;
-        }
-
-        private static List<string> ChunkText(string contentText, int maxLinetokens, int maxParagraphTokens)
-        {
-            // should probably use blingfire here https://www.nuget.org/packages/BlingFireNuget/
-            var lineChunks = TextChunker.SplitPlainTextLines(contentText, maxLinetokens);
-            var paragraphChunks = TextChunker.SplitPlainTextParagraphs(lineChunks, maxParagraphTokens);
-
-            return paragraphChunks;
+             using (StreamReader reader = new StreamReader(inputBlob))
+            {
+                string text = await reader.ReadToEndAsync();
+                var response = await ExtractCustomerIdentity(text);
+                _logger.LogInformation($"{response}");
+                return response;
+            }
         }
 
         private async Task<string> ExtractCustomerIdentity(string text)
