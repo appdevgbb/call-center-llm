@@ -1,0 +1,20 @@
+{
+	"name": "GBB OpenAI DevContainer",
+	"build": {  
+        "dockerfile": "Dockerfile"  
+    },
+	"features": {
+		"ghcr.io/devcontainers/features/azure-cli": {},
+		"ghcr.io/azure/azure-dev/azd": {}
+		},
+	"customizations": {
+			"vscode": {
+				"extensions": [
+					"ms-azuretools.vscode-azurefunctions",
+					"ms-azuretools.azure-dev",
+					"ms-azuretools.vscode-bicep",
+					"ms-azuretools.vscode-azurefunctions"
+				]
+			}
+		}
+}
