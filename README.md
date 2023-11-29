@@ -15,4 +15,4 @@ Azure Cognitive Services using Speech Services and Azure OpenAI.  This is a demo
 
 ## Application Diagram
 
-![Early Diagram](assets/images/diagram.png)
+![Early Diagram](assets/images/arch.png)
