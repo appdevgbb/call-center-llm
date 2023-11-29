@@ -49,7 +49,7 @@ namespace AudioTranscriptionFunction
                     logger.LogInformation($"Transcribed text: {result.Text}");
 
                     // Writing transcribed text to the output blob
-                    return "result.Text";
+                    return result.Text;
                 }
                 else if (result.Reason == ResultReason.Canceled)
                 {
