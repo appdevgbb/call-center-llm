@@ -34,9 +34,9 @@ namespace AudioTranscriptionFunction
                     audioInputStream.Close();
                 }
 
-                speechConfig.SpeechRecognitionLanguage = "en-CA";
+                speechConfig.SpeechRecognitionLanguage = "en-US";
                 speechConfig.SetProperty(PropertyId.Speech_SegmentationSilenceTimeoutMs, "5000");
-                speechConfig.SetProperty(PropertyId.SpeechServiceConnection_InitialSilenceTimeoutMs, "10000");
+                speechConfig.SetProperty(PropertyId.SpeechServiceConnection_InitialSilenceTimeoutMs, "3000");
 
                 var audioConfig = AudioConfig.FromStreamInput(audioInputStream);
                 var speechRecognizer = new SpeechRecognizer(speechConfig, audioConfig);

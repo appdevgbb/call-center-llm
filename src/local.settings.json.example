@@ -1,13 +1,21 @@
 {
     "IsEncrypted": false,
     "Values": {
-      "AzureWebJobsStorage": "UseDevelopmentStorage=true",
-      "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
-      "AZURE_COGNITIVE_SEARCH_ENDPOINT": "https://{document-intelligence}.cognitiveservices.azure.com/",
-      "AZURE_COGNITIVE_SEARCH_APIKEY": "{key}",
-      "AzureOpenAiEndpoint": "https://{openai}.openai.azure.com/",
-      "AzureOpenAiKey": "{key}",
-      "AzureOpenAiChatDeploymentName": "{deployment-name}",
-      "AzureOpenAiEmbeddingDeploymentName": "{deployment-name}"
+      "AzureWebJobsStorage": "",
+      "FUNCTIONS_WORKER_RUNTIME": "",
+      "AzureWebJobsSecretStorageType": "",
+      
+      "AZURE_COGNITIVE_SEARCH_ENDPOINT": "",
+      "AZURE_COGNITIVE_SEARCH_APIKEY": "",
+      
+      "AzureOpenAiEndpoint": "",
+      "AzureOpenAiKey": "",
+      "AzureOpenAiChatDeploymentName": "",
+      "AzureOpenAiEmbeddingDeploymentName": "",
+      
+      "TranscriptionStorage": "",
+      
+      "SPEECH_SERVICE_KEY": "",
+      "SPEECH_SERVICE_REGION": ""
     }
 }
