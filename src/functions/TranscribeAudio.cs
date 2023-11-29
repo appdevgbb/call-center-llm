@@ -1,9 +1,8 @@
 using System;
 using System.IO;
 using System.Threading.Tasks;
-using Azure.Storage.Blobs;
+using Microsoft.Azure.Functions.Worker.Extensions.Storage.Blobs;
 using Microsoft.Azure.Functions.Worker;
-using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.CognitiveServices.Speech;
 using Microsoft.CognitiveServices.Speech.Audio;
 using Microsoft.Extensions.Logging;
@@ -17,27 +16,27 @@ namespace AudioTranscriptionFunction
 
         [Function("AudioTranscriptionFunction")]
         [BlobOutput("transcribbed-files/{name}-output.txt", Connection = "TranscriptionStorage")]
-        public static async Task<string> RunAsync([BlobTrigger("audio-files/{name}", Connection = "TranscriptionStorage")] Stream inputBlob, string name, FunctionContext context)
+        public static async Task<string> RunAsync([BlobTrigger("audio-files/{name}", Connection = "TranscriptionStorage")] byte[] inputBlob, string name, FunctionContext context)
         {
             var logger = context.GetLogger("AudioTranscriptionFunction");
 
             var speechConfig = SpeechConfig.FromSubscription(cognitiveServiceKey, cognitiveServiceRegion);
             using (var audioInputStream = AudioInputStream.CreatePushStream())
             {
-                using (var reader = new BinaryReader(inputBlob))
+                using (var stream = new MemoryStream(inputBlob))
                 {
                     byte[] buffer = new byte[4096];
                     int bytesRead;
-                    while ((bytesRead = reader.Read(buffer, 0, buffer.Length)) > 0)
+                    while ((bytesRead =stream.Read(buffer, 0, buffer.Length)) > 0)
                     {
                         audioInputStream.Write(buffer, bytesRead);
                     }
                     audioInputStream.Close();
                 }
 
-                // speechConfig.SpeechRecognitionLanguage = "en-CA";
-                // speechConfig.SetProperty(PropertyId.Speech_SegmentationSilenceTimeoutMs, "5000");
-                // speechConfig.SetProperty(PropertyId.SpeechServiceConnection_InitialSilenceTimeoutMs, "10000");
+                speechConfig.SpeechRecognitionLanguage = "en-CA";
+                speechConfig.SetProperty(PropertyId.Speech_SegmentationSilenceTimeoutMs, "5000");
+                speechConfig.SetProperty(PropertyId.SpeechServiceConnection_InitialSilenceTimeoutMs, "10000");
 
                 var audioConfig = AudioConfig.FromStreamInput(audioInputStream);
                 var speechRecognizer = new SpeechRecognizer(speechConfig, audioConfig);
