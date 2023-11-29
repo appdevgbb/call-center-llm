@@ -14,11 +14,10 @@ namespace AudioTranscriptionFunction
     {
         private static string cognitiveServiceKey = Environment.GetEnvironmentVariable("SPEECH_SERVICE_KEY");
         private static string cognitiveServiceRegion = Environment.GetEnvironmentVariable("SPEECH_SERVICE_REGION");
-        private static string outputStorageConnectionString = Environment.GetEnvironmentVariable("TranscriptionStorage");
-        private static string outputContainerName = Environment.GetEnvironmentVariable("transcribbed-files");
 
         [Function("AudioTranscriptionFunction")]
-        public static async Task RunAsync([BlobTrigger("audio-files/{name}", Connection = "TranscriptionStorage")] Stream inputBlob, string name, FunctionContext context)
+        [BlobOutput("transcribbed-files/{name}-output.txt", Connection = "TranscriptionStorage")]
+        public static async Task<string> RunAsync([BlobTrigger("audio-files/{name}", Connection = "TranscriptionStorage")] Stream inputBlob, string name, FunctionContext context)
         {
             var logger = context.GetLogger("AudioTranscriptionFunction");
 
@@ -33,13 +32,12 @@ namespace AudioTranscriptionFunction
                     {
                         audioInputStream.Write(buffer, bytesRead);
                     }
-                    
                     audioInputStream.Close();
                 }
 
-                speechConfig.SpeechRecognitionLanguage = "en-CA";
-                speechConfig.SetProperty(PropertyId.Speech_SegmentationSilenceTimeoutMs, "5000");
-                speechConfig.SetProperty(PropertyId.SpeechServiceConnection_InitialSilenceTimeoutMs, "10000");
+                // speechConfig.SpeechRecognitionLanguage = "en-CA";
+                // speechConfig.SetProperty(PropertyId.Speech_SegmentationSilenceTimeoutMs, "5000");
+                // speechConfig.SetProperty(PropertyId.SpeechServiceConnection_InitialSilenceTimeoutMs, "10000");
 
                 var audioConfig = AudioConfig.FromStreamInput(audioInputStream);
                 var speechRecognizer = new SpeechRecognizer(speechConfig, audioConfig);
@@ -52,8 +50,7 @@ namespace AudioTranscriptionFunction
                     logger.LogInformation($"Transcribed text: {result.Text}");
 
                     // Writing transcribed text to the output blob
-                    var outputBlobClient = new BlobClient(outputStorageConnectionString, outputContainerName, $"{name}.txt");
-                    await outputBlobClient.UploadAsync(new BinaryData(result.Text), overwrite: true);
+                    return "result.Text";
                 }
                 else if (result.Reason == ResultReason.Canceled)
                 {
@@ -65,6 +62,11 @@ namespace AudioTranscriptionFunction
                         logger.LogError($"CANCELED: ErrorCode={cancellation.ErrorCode}");
                         logger.LogError($"CANCELED: ErrorDetails={cancellation.ErrorDetails}");
                         logger.LogError($"CANCELED: Did you update the subscription info?");
+                        throw new InvalidOperationException(cancellation.ErrorDetails);
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException("just cuz");
                     }
                 }
                 else
@@ -73,6 +75,8 @@ namespace AudioTranscriptionFunction
                     logger.LogError($"Speech recognition failed. Reason: {result.Reason}");
 
                     logger.LogError($"FAILED: Reason={cancellation.Reason}");
+
+                    throw new InvalidOperationException(result.Reason.ToString());
                 }
             }
         }
