@@ -11,7 +11,7 @@ using Microsoft.SemanticKernel.SkillDefinition;
 using Microsoft.SemanticKernel.Memory;
 using HtmlAgilityPack;
 
-namespace AksChatBot
+namespace CallCenterChatBot
 {
     public class Chat
     {

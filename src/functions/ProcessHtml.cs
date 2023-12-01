@@ -9,7 +9,7 @@ using Microsoft.SemanticKernel.Orchestration;
 using Microsoft.SemanticKernel.SkillDefinition;
 using HtmlAgilityPack;
 
-namespace AksChatBot
+namespace CallCenterChatBot
 {
     public class ProcessHtmlDoc
     {

@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Orchestration;
 
-namespace AksChatBot
+namespace CallCenterChatBot
 {
     public class SummarizeText
     {
